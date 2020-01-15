@@ -5,7 +5,13 @@ const db = require('../data/db')
 router.get('/', (req, res) => {
     db.find()
         .then(posts => {
-            res.status(200).json(posts)
+            if(posts.length === 0) {
+              res.status(204).json({
+                message: 'No posts available'
+              })
+            } else {
+              res.status(200).json(posts)
+            }
         })
         .catch(error => {
             res.status(500).json({
@@ -19,7 +25,7 @@ router.get('/:id', async (req, res) => {
 
     try {
         const getPost = await db.findById(id)
-        if (getPost !== []) {
+        if (getPost.length > 0) { 
           res.status(200).json(getPost)
         } else {
           res.status(404).json({ message: `Post with id ${id} is not defined`})
@@ -35,12 +41,12 @@ router.post("/", (req, res) => {
       res
         .status(400)
         .json({ errorMessage: "Please provide title and content for the post." });
-    } else {
+    }
+    
       db.insert(newPost)
         .then(post => {
           if (post) {
             res.status(201).json(post)
-          } else {
           }
         })
         .catch(error => {
@@ -49,7 +55,7 @@ router.post("/", (req, res) => {
               "There was an error while saving the post to the database"
           })
         })
-    }
+    
   })
 
   router.put('/:id', async (req, res) => {
